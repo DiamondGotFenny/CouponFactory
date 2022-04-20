@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import CouponFactory from './contracts/CouponsFactory.json';
+import CouponFactory from './contracts/CouponFactory.json';
 import getWeb3 from './getWeb3';
 
 import Form from 'react-bootstrap/Form';
@@ -13,7 +13,7 @@ const App = () => {
   const [couponInput, setCouponInput] = React.useState({
     couponName: '',
     couponSymbol: '',
-    couponSupply: 0,
+    couponSupply: 10,
   });
   const [coupon, setCoupon] = React.useState({
     couponName: '',
@@ -39,10 +39,13 @@ const App = () => {
         CouponFactory.abi,
         deployedNetwork && deployedNetwork.address
       );
-      instance.options.address = '0xA629EbAAF93d6430e48e76Ff528E4925e890B3f3';
+      instance.options.address = '0x36436acA6905F30F3484faA694980f0C33Ab6e45';
       console.log(instance);
       setContract(instance);
     } catch (error) {
+      alert(
+        `Failed to load web3, accounts, or contract. Check console for details.`
+      );
       console.log(error);
     }
   };
@@ -65,7 +68,7 @@ const App = () => {
         .createToken(
           couponInput.couponName,
           couponInput.couponSymbol,
-          couponInput.couponSupply
+          couponInput.couponSupply.toString()
         )
         .send({ from: account[0] });
       console.log(response);
@@ -81,7 +84,7 @@ const App = () => {
     }
     try {
       console.log('handleGetCouponInfo');
-      const response = await contract.methods.getTokenInfo(account).call();
+      const response = await contract.methods.getTokenInfo(account[0]).call();
       console.log(response);
       setCoupon(response);
     } catch (error) {
