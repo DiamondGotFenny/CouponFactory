@@ -5,9 +5,11 @@ module.exports = {
   // to customize your Truffle configuration!
   contracts_build_directory: path.join(__dirname, 'client/src/contracts'),
   networks: {
+    //this is run by Ganache, please make sure you have Ganache running
     development: {
       host: '127.0.0.1',
-      port: 9545,
+      port: 7545,
+      network_id: '*',
     },
   },
   compilers: {

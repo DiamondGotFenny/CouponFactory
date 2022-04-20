@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/utils/Context.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 
-contract CouponsFactory {
+contract CouponFactory {
     struct Vendor{
         address account;
         //check if the vendor exist, instead of using for loop
@@ -37,7 +37,8 @@ contract CouponsFactory {
 
     //vendor info, token/coupon info and consumer info must be on chain
    mapping(address=>Vendor) vendors;
-
+    
+    event couponCreate(string name, string symbol, uint256 totalSupply,address vendor);
     event productSet(Product product,address vendor);
     event consumerGetCoupon(Consumer consumer,address vendor);
     event couponUsed(Consumer consumer,address vendor);
@@ -49,6 +50,7 @@ contract CouponsFactory {
         vendors[msg.sender].coupon._mint(msg.sender, _totalSupply);
         //vendor can only be on vendors list by creating its own token
          vendors[msg.sender]._exist=true;
+         emit couponCreate(_name, _symbol, _totalSupply,msg.sender);
     }
    
     function getBalance(address _vendorAdrs,address owner) public view  returns (uint256)  {
