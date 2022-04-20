@@ -16,9 +16,9 @@ const App = () => {
     couponSupply: 10,
   });
   const [coupon, setCoupon] = React.useState({
-    couponName: '',
-    couponSymbol: '',
-    couponSupply: 0,
+    _name: '',
+    _symbol: '',
+    _totalSupply: 0,
   });
 
   const initWeb3 = async () => {
@@ -39,9 +39,11 @@ const App = () => {
         CouponFactory.abi,
         deployedNetwork && deployedNetwork.address
       );
-      instance.options.address = '0x36436acA6905F30F3484faA694980f0C33Ab6e45';
+      instance.options.address = deployedNetwork.address;
+      console.log(deployedNetwork.address);
       console.log(instance);
       setContract(instance);
+      //get deployed contract address
     } catch (error) {
       alert(
         `Failed to load web3, accounts, or contract. Check console for details.`
@@ -134,9 +136,9 @@ const App = () => {
       <div>
         <h2>Coupon info</h2>
         <ul>
-          <li>Coupon Name: {coupon.couponName}</li>
-          <li>Coupon Symbol: {coupon.couponSymbol}</li>
-          <li>Coupon Supply: {coupon.couponSupply}</li>
+          <li>Coupon Name: {coupon._name}</li>
+          <li>Coupon Symbol: {coupon._symbol}</li>
+          <li>Coupon Supply: {coupon._totalSupply}</li>
         </ul>
         <Button variant='primary' onClick={handleGetCouponInfo}>
           Get Coupon Info
