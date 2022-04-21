@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react';
-import CouponFactory from './contracts/CouponFactory.json';
+import CouponFactory from '../contracts/CouponFactory.json';
 import getWeb3 from './getWeb3';
-import './App.css';
-import ChooseAction from './components/ChooseAction';
+import Form from 'react-bootstrap/Form';
+import Button from 'react-bootstrap/Button';
 
-const App = () => {
+const tem = () => {
   const [account, setAccount] = React.useState(null);
   const [contract, setContract] = React.useState(null);
 
@@ -107,7 +107,54 @@ const App = () => {
 
   return (
     <div className='App'>
-      <ChooseAction />
+      <Form onSubmit={handleCreateCouponSubmit}>
+        <h2>Create Coupon</h2>
+        <Form.Group className='mb-3' controlId='formCouponName'>
+          <Form.Label>Coupon Name</Form.Label>
+          <Form.Control
+            type='text'
+            placeholder='Enter Coupon Name'
+            name='couponName'
+            value={couponInput.couponName}
+            onChange={handleCreateCouponChange}
+          />
+        </Form.Group>
+
+        <Form.Group className='mb-3' controlId='formCouponSymbol'>
+          <Form.Label>Coupon Symbol</Form.Label>
+          <Form.Control
+            type='text'
+            placeholder='Enter Coupon Symbol'
+            name='couponSymbol'
+            value={couponInput.couponSymbol}
+            onChange={handleCreateCouponChange}
+          />
+        </Form.Group>
+        <Form.Group className='mb-3' controlId='formCouponSupply'>
+          <Form.Label>Coupon Supply</Form.Label>
+          <Form.Control
+            type='number'
+            placeholder='Enter Coupon Supply'
+            name='couponSupply'
+            value={couponInput.couponSupply}
+            onChange={handleCreateCouponChange}
+          />
+        </Form.Group>
+        <Button variant='primary' type='submit'>
+          Submit
+        </Button>
+      </Form>
+      <div>
+        <h2>Coupon info</h2>
+        <ul>
+          <li>Coupon Name: {coupon._name}</li>
+          <li>Coupon Symbol: {coupon._symbol}</li>
+          <li>Coupon Supply: {coupon._totalSupply}</li>
+        </ul>
+        <Button variant='primary' onClick={handleGetCouponInfo}>
+          Get Coupon Info
+        </Button>
+      </div>
     </div>
   );
 };
