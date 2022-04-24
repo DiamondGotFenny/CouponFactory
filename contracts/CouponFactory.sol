@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 
 contract CouponFactory {
+
     struct Vendor{
         address account;
         //check if the vendor exist, instead of using for loop
@@ -42,6 +43,19 @@ contract CouponFactory {
     event productSet(Product product,address vendor);
     event consumerGetCoupon(Consumer consumer,address vendor);
     event couponUsed(Consumer consumer,address vendor);
+
+//allow vendor reset the token,but the existing consumer will not able to use the previous token
+function resetToken(string memory _name, string memory _symbol, uint256 _tokenSupply) public{
+    require(vendors[msg.sender]._exist,"you are not a vendor");
+     vendors[msg.sender].coupon= new ERC20(_name, _symbol,msg.sender);
+    vendors[msg.sender].coupon._mint(msg.sender, _tokenSupply);
+}
+
+
+    //function that check if the msg.sender is already a vendor
+    function isVendor(address _vendor) public view returns (bool){
+        return vendors[_vendor]._exist;
+    }
 
     //vendor can create its own token by calling this method
     function createToken(string memory _name, string memory _symbol, uint256 _totalSupply) public  {

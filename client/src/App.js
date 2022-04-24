@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import CouponFactory from './contracts/CouponFactory.json';
 import getWeb3 from './getWeb3';
 import './App.css';
-import ChooseAction from './components/ChooseAction';
+import VendorAction from './components/ChooseAction';
 
 const App = () => {
   const [account, setAccount] = React.useState(null);
@@ -107,7 +107,7 @@ const App = () => {
 
   return (
     <div className='App'>
-      <ChooseAction />
+      <VendorAction />
     </div>
   );
 };

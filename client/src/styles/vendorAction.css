@@ -1,0 +1,7 @@
+.hidden {
+  display: none !important;
+}
+.vender-actions-container {
+  display: flex;
+  justify-content: space-around;
+}
