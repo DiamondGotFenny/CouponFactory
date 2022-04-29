@@ -1,8 +1,9 @@
 import React from 'react';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
+import Form from 'react-bootstrap/Form';
 
-const CreateTokenModal = ({ show, handleClose, handleCreateCouponSubmit }) => {
+const CreateTokenModal = ({ show, handleClose, onHide }) => {
   const [couponInput, setCouponInput] = React.useState({
     _name: '',
     _symbol: '',
@@ -16,8 +17,12 @@ const CreateTokenModal = ({ show, handleClose, handleCreateCouponSubmit }) => {
     });
   };
 
+  const handleCreateCouponSubmit=()=>{
+    console.log(couponInput);
+  }
+
   return (
-    <Modal show={show} onHide={handleClose}>
+    <Modal show={show} onHide={onHide}>
       <Modal.Header closeButton>
         <Modal.Title>Create Coupon Token</Modal.Title>
       </Modal.Header>
@@ -28,7 +33,7 @@ const CreateTokenModal = ({ show, handleClose, handleCreateCouponSubmit }) => {
             <Form.Control
               type='text'
               placeholder='Enter Coupon Name'
-              name='couponName'
+              name='_name'
               value={couponInput._name}
               onChange={handleChange}
             />
@@ -38,7 +43,7 @@ const CreateTokenModal = ({ show, handleClose, handleCreateCouponSubmit }) => {
             <Form.Control
               type='text'
               placeholder='Enter Coupon Symbol'
-              name='couponSymbol'
+              name='_symbol'
               value={couponInput._symbol}
               onChange={handleChange}
             />
@@ -46,9 +51,9 @@ const CreateTokenModal = ({ show, handleClose, handleCreateCouponSubmit }) => {
           <Form.Group controlId='formCouponSupply'>
             <Form.Label>Coupon Supply</Form.Label>
             <Form.Control
-              type='text'
+              type="number"
               placeholder='Enter Coupon Supply'
-              name='couponSupply'
+              name='_totalSupply'
               value={couponInput._totalSupply}
               onChange={handleChange}
             />
@@ -56,7 +61,7 @@ const CreateTokenModal = ({ show, handleClose, handleCreateCouponSubmit }) => {
         </Form>
       </Modal.Body>
       <Modal.Footer>
-        <Button variant='secondary' onClick={handleClose}>
+        <Button variant='secondary' onClick={onHide}>
           Close
         </Button>
         <Button variant='primary' onClick={handleCreateCouponSubmit}>
