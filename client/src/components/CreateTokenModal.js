@@ -3,7 +3,7 @@ import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
 
-const CreateTokenModal = ({ show, handleClose, onHide }) => {
+const CreateTokenModal = ({ show, onHide, contract, account }) => {
   const [couponInput, setCouponInput] = React.useState({
     _name: '',
     _symbol: '',
@@ -17,9 +17,43 @@ const CreateTokenModal = ({ show, handleClose, onHide }) => {
     });
   };
 
-  const handleCreateCouponSubmit=()=>{
-    console.log(couponInput);
-  }
+  //check if the account[0] is already create a token
+  const checkIfAccountHasToken = async (e) => {
+    try {
+      const response = await contract.methods.isVendor(account[0]).call();
+      if (response) {
+        alert('You already create coupon token!');
+        return true;
+      }
+    } catch (error) {
+      alert(error.message);
+      console.log(error);
+    }
+  };
+
+  const handleCreateCouponSubmit = async (e) => {
+    e.preventDefault();
+    if (!contract) {
+      return <div>can not get the contract!</div>;
+    }
+    //check if the accout is already created a coupon
+    const isCouponCreated = await checkIfAccountHasToken();
+    if (isCouponCreated) return;
+
+    //create a new token
+    try {
+      const response = await contract.methods
+        .createToken(
+          couponInput.couponName,
+          couponInput.couponSymbol,
+          couponInput.couponSupply.toString()
+        )
+        .send({ from: account[0] });
+      console.log(response);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <Modal show={show} onHide={onHide}>
@@ -51,7 +85,7 @@ const CreateTokenModal = ({ show, handleClose, onHide }) => {
           <Form.Group controlId='formCouponSupply'>
             <Form.Label>Coupon Supply</Form.Label>
             <Form.Control
-              type="number"
+              type='number'
               placeholder='Enter Coupon Supply'
               name='_totalSupply'
               value={couponInput._totalSupply}

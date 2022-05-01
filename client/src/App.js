@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import CouponFactory from './contracts/CouponFactory.json';
 import getWeb3 from './getWeb3';
 import './App.css';
@@ -49,7 +50,7 @@ const App = () => {
     initWeb3();
   }, []);
 
-  const handleCreateCouponChange = (event) => {
+  /* const handleCreateCouponChange = (event) => {
     setCouponInput({ ...couponInput, [event.target.name]: event.target.value });
   };
 
@@ -76,7 +77,7 @@ const App = () => {
       console.log(error);
     }
   };
-
+ */
   const handleGetCouponInfo = async (e) => {
     e.preventDefault();
     if (!contract) {
@@ -107,7 +108,13 @@ const App = () => {
 
   return (
     <div className='App'>
-      <VendorAction />
+      <VendorAction account={account} contract={contract} />
+      <BrowserRouter>
+        <Routes>
+          <Route path='/' element={<div>vendor list</div>} />
+          <Route path='/productsList' element={<div>Products List</div>} />
+        </Routes>
+      </BrowserRouter>
     </div>
   );
 };
