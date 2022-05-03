@@ -1,9 +1,10 @@
 import React, { useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import CouponFactory from './contracts/CouponFactory.json';
 import getWeb3 from './getWeb3';
 import './App.css';
 import VendorAction from './components/ChooseAction';
+import ProductsList from './components/ProductsList';
 
 const App = () => {
   const [account, setAccount] = React.useState(null);
@@ -108,11 +109,14 @@ const App = () => {
 
   return (
     <div className='App'>
-      <VendorAction account={account} contract={contract} />
       <BrowserRouter>
+        <VendorAction account={account} contract={contract} />
         <Routes>
           <Route path='/' element={<div>vendor list</div>} />
-          <Route path='/productsList' element={<div>Products List</div>} />
+          <Route
+            path='/productsList'
+            element={<ProductsList account={account} contract={contract} />}
+          />
         </Routes>
       </BrowserRouter>
     </div>

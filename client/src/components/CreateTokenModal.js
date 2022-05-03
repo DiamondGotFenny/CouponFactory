@@ -44,9 +44,9 @@ const CreateTokenModal = ({ show, onHide, contract, account }) => {
     try {
       const response = await contract.methods
         .createToken(
-          couponInput.couponName,
-          couponInput.couponSymbol,
-          couponInput.couponSupply.toString()
+          couponInput._name,
+          couponInput._symbol,
+          couponInput._totalSupply
         )
         .send({ from: account[0] });
       console.log(response);

@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
+import ListGroup from 'react-bootstrap/ListGroup';
 
 const CouponInfoModal = ({ show, onHide, contract, account }) => {
   const [coupon, setCoupon] = React.useState({
@@ -39,15 +40,23 @@ const CouponInfoModal = ({ show, onHide, contract, account }) => {
         <Modal.Title>Coupon info</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <li>Coupon Name: {coupon._name}</li>
-        <li>Coupon Symbol: {coupon._symbol}</li>
-        <li>Coupon Supply: {coupon._totalSupply}</li>
+        <ListGroup>
+          <ListGroup.Item variant='primary'>
+            <label>Coupon Name:</label> {coupon._name}
+          </ListGroup.Item>
+          <ListGroup.Item variant='success'>
+            <label>Coupon Symbol:</label> {coupon._symbol}
+          </ListGroup.Item>
+          <ListGroup.Item variant='info'>
+            <label> Coupon Supply:</label> {coupon._totalSupply}
+          </ListGroup.Item>
+        </ListGroup>
       </Modal.Body>
       <Modal.Footer>
         <Button variant='secondary' onClick={onHide}>
           Close
         </Button>
-        <Button variant='primary' onClick={handleResetToken}>
+        <Button variant='danger' onClick={handleResetToken}>
           Delete
         </Button>
       </Modal.Footer>

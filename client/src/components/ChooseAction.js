@@ -1,15 +1,18 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import Button from 'react-bootstrap/Button';
 import '../styles/vendorAction.css';
 import CouponInfoModal from './CouponInfoModal';
 
 import CreateTokenModal from './CreateTokenModal';
+import AddProductModal from './AddProductModal';
 
 const VendorAction = ({ account, contract }) => {
   const [isVendor, setIsVendor] = React.useState(false);
 
   const [openCreateToken, setOpenCreateToken] = React.useState(false);
   const [openCouponInfo, setOpenCouponInfo] = React.useState(false);
+  const [openAddProduct, setOpenAddProduct] = React.useState(false);
   const handleCreateTokenMadalClose = () => {
     setOpenCreateToken(false);
   };
@@ -30,8 +33,13 @@ const VendorAction = ({ account, contract }) => {
           <Button variant='primary' onClick={() => setOpenCouponInfo(true)}>
             Get My Coupon info
           </Button>
-          <Button variant='primary'>Check My Products List</Button>
-          <Button variant='primary'>Add Product</Button>
+          <Link to={'/productsList'}>
+            <Button variant='primary'>Check My Products List</Button>
+          </Link>
+
+          <Button variant='primary' onClick={() => setOpenAddProduct(true)}>
+            Add Product
+          </Button>
           <Button variant='primary'>Delete Product</Button>
           <Button variant='primary' onClick={() => setIsVendor(false)}>
             Cancel
@@ -47,6 +55,12 @@ const VendorAction = ({ account, contract }) => {
       <CouponInfoModal
         show={openCouponInfo}
         onHide={() => setOpenCouponInfo(false)}
+        contract={contract}
+        account={account}
+      />
+      <AddProductModal
+        show={openAddProduct}
+        onHide={() => setOpenAddProduct(false)}
         contract={contract}
         account={account}
       />
