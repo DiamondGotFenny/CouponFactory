@@ -1,5 +1,5 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import Button from 'react-bootstrap/Button';
 import '../styles/vendorAction.css';
 import CouponInfoModal from './CouponInfoModal';
@@ -8,8 +8,9 @@ import CreateTokenModal from './CreateTokenModal';
 import AddProductModal from './AddProductModal';
 
 const VendorAction = ({ account, contract }) => {
+  const navigate = useNavigate();
   const [isVendor, setIsVendor] = React.useState(false);
-
+  const [isNewToken, setIsNewToken] = React.useState(false);
   const [openCreateToken, setOpenCreateToken] = React.useState(false);
   const [openCouponInfo, setOpenCouponInfo] = React.useState(false);
   const [openAddProduct, setOpenAddProduct] = React.useState(false);
@@ -17,32 +18,77 @@ const VendorAction = ({ account, contract }) => {
     setOpenCreateToken(false);
   };
 
+  const handleBack = () => {
+    navigate('/');
+  };
+
+  //check if the account[0] is already create a token
+  const checkIfAccountHasToken = async (e) => {
+    if (!contract) {
+      return;
+    }
+    if (!account) {
+      return;
+    }
+    try {
+      const response = await contract.methods
+        .checkVendorExist(account[0])
+        .call();
+      if (response) {
+        setIsVendor(true);
+        return true;
+      }
+    } catch (error) {
+      alert(error.message);
+      console.log(error);
+    }
+  };
+
+  const handleCreateToken = () => {
+    if (isVendor) {
+      alert(
+        'You already create coupon token! Reset Token before you create a new one!'
+      );
+      return;
+    }
+    setIsNewToken(true);
+    setOpenCreateToken(true);
+  };
+
+  const handleResetToken = () => {
+    setIsNewToken(false);
+    setOpenCreateToken(true);
+  };
+
+  useEffect(() => {
+    checkIfAccountHasToken();
+  }, [account, contract]);
+
   return (
     <div>
       <header className='choose-vendor'>
         <Button
           variant='primary'
-          onClick={() => setIsVendor(true)}
+          onClick={handleCreateToken}
           className={`${isVendor ? 'hidden' : ''}`}>
           I want to Release Coupon
         </Button>
         <div className={`vender-actions-container ${isVendor ? '' : 'hidden'}`}>
-          <Button variant='primary' onClick={() => setOpenCreateToken(true)}>
-            Create My Coupon
+          <Button variant='primary' onClick={handleResetToken}>
+            Reset Coupon
           </Button>
           <Button variant='primary' onClick={() => setOpenCouponInfo(true)}>
             Get My Coupon info
           </Button>
-          <Link to={'/productsList'}>
+          <Link to={`/my/productsList`}>
             <Button variant='primary'>Check My Products List</Button>
           </Link>
 
           <Button variant='primary' onClick={() => setOpenAddProduct(true)}>
             Add Product
           </Button>
-          <Button variant='primary'>Delete Product</Button>
-          <Button variant='primary' onClick={() => setIsVendor(false)}>
-            Cancel
+          <Button variant='primary' onClick={handleBack}>
+            Back To Home
           </Button>
         </div>
       </header>
@@ -51,6 +97,7 @@ const VendorAction = ({ account, contract }) => {
         onHide={handleCreateTokenMadalClose}
         contract={contract}
         account={account}
+        isNewToken={isNewToken}
       />
       <CouponInfoModal
         show={openCouponInfo}

@@ -38,7 +38,9 @@ contract CouponFactory {
 
     //vendor info, token/coupon info and consumer info must be on chain
    mapping(address=>Vendor) vendors;
-    
+      //use id get vendor account address
+    mapping(string=>address) vendorsAdrs; 
+
     event couponCreate(string name, string symbol, uint256 totalSupply,address vendor);
     event productSet(Product product,address vendor);
     event consumerGetCoupon(Consumer consumer,address vendor);
@@ -72,18 +74,24 @@ function resetToken(string memory _name, string memory _symbol, uint256 _tokenSu
          emit couponCreate(_name, _symbol, _totalSupply,msg.sender);
     }
    
+function getVendorAddress(string memory vendorId) public view returns (address){
+    address vendorAdrs=vendorsAdrs[vendorId];
+    return vendorAdrs;
+}
+
+
     function getBalance(address _vendorAdrs,address owner) public hasVendor(_vendorAdrs)  view  returns (uint256) {
         return vendors[_vendorAdrs].coupon.balanceOf(owner);
     }
 
-    function getTokenInfo(address _vendorAdrs) public hasVendor(_vendorAdrs) view returns (string memory _name, string memory _symbol, uint256 _totalSupply)  {
+   function getTokenInfo(address _vendorAdrs) public hasVendor(_vendorAdrs) view returns (string memory _name, string memory _symbol, uint256 _totalSupply)  {
          ERC20 coupon=vendors[_vendorAdrs].coupon;
         return ( coupon.name(), coupon.symbol(), coupon.totalSupply());
     }
 
-    function getTokenOwner(address _vendorAdrs) public  hasVendor(_vendorAdrs) view  returns (address){
-        return  vendors[_vendorAdrs].coupon.owner();
-    }
+    function checkVendorExist(address _vendorAdrs) public view returns (bool){
+    return vendors[_vendorAdrs]._exist;
+}
 
 function checkIdUsed(uint id) public view returns (bool){
   for(uint i=0; i< vendors[msg.sender].productIdList.length; i++){
@@ -132,7 +140,6 @@ function checkIdUsed(uint id) public view returns (bool){
     function deleteProduct(uint id) public isOwner returns (bool) {
         require(vendors[msg.sender].products[id]._exist,"No product!");
         vendors[msg.sender].products[id].name="";
-        vendors[msg.sender].products[id].id=0;
         vendors[msg.sender].products[id].price=0;
         vendors[msg.sender].products[id].stock=0;
         vendors[msg.sender].products[id]._exist=false;

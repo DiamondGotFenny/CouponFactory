@@ -2,16 +2,12 @@ import React, { useContext } from 'react';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
-import appContext from '../context/AppContext';
 
-const CreateTokenModal = ({ show, onHide, contract, account }) => {
-  const { setNewVendor } = useContext(appContext);
-
+const ResetTokenModal = ({ show, onHide, contract, account }) => {
   const [couponInput, setCouponInput] = React.useState({
     _name: '',
     _symbol: '',
     _totalSupply: '',
-    _vendorName: '',
   });
 
   const handleChange = (e) => {
@@ -21,11 +17,6 @@ const CreateTokenModal = ({ show, onHide, contract, account }) => {
     });
   };
 
-  const generateId = (account) => {
-    const startString = account.substring(0, 4);
-    const id = Math.random().toString(36).substring(2, 15) + startString;
-    return id;
-  };
   const handleCreateCouponSubmit = async (e) => {
     e.preventDefault();
     if (!contract) {
@@ -34,31 +25,20 @@ const CreateTokenModal = ({ show, onHide, contract, account }) => {
     if (!account) {
       return;
     }
-
     try {
       const response = await contract.methods
-        .createToken(
+        .resetToken(
           couponInput._name,
           couponInput._symbol,
           couponInput._totalSupply
         )
         .send({ from: account[0] });
       console.log(response);
-      const newVendor = {
-        vendorName: couponInput._vendorName,
-        vendorId: generateId(account[0]),
-        vendorAccount: account[0],
-        couponInfo: {
-          couponName: couponInput._name,
-          couponSymbol: couponInput._symbol,
-          couponTotalSupply: couponInput._totalSupply,
-        },
-      };
-      setNewVendor(newVendor);
       onHide();
       return;
     } catch (error) {
       console.log(error);
+      alert('something went wrong,please check the console for more details');
     }
   };
 
@@ -123,4 +103,4 @@ const CreateTokenModal = ({ show, onHide, contract, account }) => {
   );
 };
 
-export default CreateTokenModal;
+export default ResetTokenModal;

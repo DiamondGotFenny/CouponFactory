@@ -3,23 +3,14 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import CouponFactory from './contracts/CouponFactory.json';
 import getWeb3 from './getWeb3';
 import './App.css';
-import VendorAction from './components/ChooseAction';
+import VendorAction from './components/VendorActions';
 import ProductsList from './components/ProductsList';
+import { AppContextProvider } from './context/AppContext';
+import VendorsList from './components/VendorsList';
 
 const App = () => {
   const [account, setAccount] = React.useState(null);
   const [contract, setContract] = React.useState(null);
-
-  const [couponInput, setCouponInput] = React.useState({
-    couponName: '',
-    couponSymbol: '',
-    couponSupply: 10,
-  });
-  const [coupon, setCoupon] = React.useState({
-    _name: '',
-    _symbol: '',
-    _totalSupply: 0,
-  });
 
   const initWeb3 = async () => {
     try {
@@ -51,74 +42,23 @@ const App = () => {
     initWeb3();
   }, []);
 
-  /* const handleCreateCouponChange = (event) => {
-    setCouponInput({ ...couponInput, [event.target.name]: event.target.value });
-  };
-
-  const handleCreateCouponSubmit = async (e) => {
-    e.preventDefault();
-    if (!contract) {
-      return <div>can not get the contract!</div>;
-    }
-    //check if the accout is already created a coupon
-    const isCouponCreated = await checkIfAccountHasToken();
-    if (isCouponCreated) return;
-
-    //create a new token
-    try {
-      const response = await contract.methods
-        .createToken(
-          couponInput.couponName,
-          couponInput.couponSymbol,
-          couponInput.couponSupply.toString()
-        )
-        .send({ from: account[0] });
-      console.log(response);
-    } catch (error) {
-      console.log(error);
-    }
-  };
- */
-  const handleGetCouponInfo = async (e) => {
-    e.preventDefault();
-    if (!contract) {
-      return <div>can not get the contract!</div>;
-    }
-    try {
-      const response = await contract.methods.getTokenInfo(account[0]).call();
-      console.log(response);
-      setCoupon(response);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  //check if the account[0] is already create a token
-  const checkIfAccountHasToken = async (e) => {
-    try {
-      const response = await contract.methods.getTokenOwner(account[0]).call();
-      if (response) {
-        alert('You already create coupon token!');
-        return true;
-      }
-    } catch (error) {
-      alert('You do not create a coupon token!');
-      console.log(error);
-    }
-  };
-
   return (
     <div className='App'>
-      <BrowserRouter>
-        <VendorAction account={account} contract={contract} />
-        <Routes>
-          <Route path='/' element={<div>vendor list</div>} />
-          <Route
-            path='/productsList'
-            element={<ProductsList account={account} contract={contract} />}
-          />
-        </Routes>
-      </BrowserRouter>
+      <AppContextProvider>
+        <BrowserRouter>
+          <VendorAction account={account} contract={contract} />
+          <Routes>
+            <Route
+              path='/'
+              element={<VendorsList account={account} contract={contract} />}
+            />
+            <Route
+              path='/:vendorId/productsList'
+              element={<ProductsList account={account} contract={contract} />}
+            />
+          </Routes>
+        </BrowserRouter>
+      </AppContextProvider>
     </div>
   );
 };

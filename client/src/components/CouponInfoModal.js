@@ -19,15 +19,12 @@ const CouponInfoModal = ({ show, onHide, contract, account }) => {
     }
     try {
       const response = await contract.methods.getTokenInfo(account[0]).call();
-      console.log(response);
+      console.log(response, 'coupon');
       setCoupon(response);
+      onHide();
     } catch (error) {
       console.log(error);
     }
-  };
-
-  const handleResetToken = () => {
-    console.log('reset token');
   };
 
   useEffect(() => {
@@ -55,9 +52,6 @@ const CouponInfoModal = ({ show, onHide, contract, account }) => {
       <Modal.Footer>
         <Button variant='secondary' onClick={onHide}>
           Close
-        </Button>
-        <Button variant='danger' onClick={handleResetToken}>
-          Delete
         </Button>
       </Modal.Footer>
     </Modal>
