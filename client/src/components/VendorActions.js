@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Button from 'react-bootstrap/Button';
 import '../styles/vendorAction.css';
@@ -6,11 +6,11 @@ import CouponInfoModal from './CouponInfoModal';
 
 import CreateTokenModal from './CreateTokenModal';
 import AddProductModal from './AddProductModal';
+import appContext from '../context/AppContext';
 
 const VendorAction = ({ account, contract }) => {
   const navigate = useNavigate();
   const [isVendor, setIsVendor] = React.useState(false);
-  const [isNewToken, setIsNewToken] = React.useState(false);
   const [openCreateToken, setOpenCreateToken] = React.useState(false);
   const [openCouponInfo, setOpenCouponInfo] = React.useState(false);
   const [openAddProduct, setOpenAddProduct] = React.useState(false);
@@ -35,6 +35,7 @@ const VendorAction = ({ account, contract }) => {
         .checkVendorExist(account[0])
         .call();
       if (response) {
+        //should get the vendorInfo from api
         setIsVendor(true);
         return true;
       }
@@ -51,12 +52,10 @@ const VendorAction = ({ account, contract }) => {
       );
       return;
     }
-    setIsNewToken(true);
     setOpenCreateToken(true);
   };
 
   const handleResetToken = () => {
-    setIsNewToken(false);
     setOpenCreateToken(true);
   };
 
@@ -97,7 +96,6 @@ const VendorAction = ({ account, contract }) => {
         onHide={handleCreateTokenMadalClose}
         contract={contract}
         account={account}
-        isNewToken={isNewToken}
       />
       <CouponInfoModal
         show={openCouponInfo}

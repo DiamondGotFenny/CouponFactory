@@ -18,9 +18,16 @@ const CouponInfoModal = ({ show, onHide, contract, account }) => {
       return;
     }
     try {
-      const response = await contract.methods.getTokenInfo(account[0]).call();
+      const response = await contract.methods
+        .getVendorBasicInfo(account[0])
+        .call();
+      const { _name, _symbol, _totalSupply } = response;
       console.log(response, 'coupon');
-      setCoupon(response);
+      setCoupon({
+        _name,
+        _symbol,
+        _totalSupply,
+      });
       onHide();
     } catch (error) {
       console.log(error);

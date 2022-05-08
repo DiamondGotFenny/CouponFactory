@@ -9,6 +9,8 @@ contract CouponFactory {
 
     struct Vendor{
         address account;
+        string vendorId;
+        string vendorName;
         //check if the vendor exist, instead of using for loop
         bool _exist;
         //every vendor has its own token/coupon
@@ -17,8 +19,6 @@ contract CouponFactory {
         //for getting off-chain product data
         uint[] productIdList;
         mapping(address=>Consumer) consumers;
-        //for getting off-chain consumer data
-        address[] consumerIdList;
     }
 
     struct Consumer {
@@ -40,6 +40,7 @@ contract CouponFactory {
    mapping(address=>Vendor) vendors;
       //use id get vendor account address
     mapping(string=>address) vendorsAdrs; 
+
 
     event couponCreate(string name, string symbol, uint256 totalSupply,address vendor);
     event productSet(Product product,address vendor);
@@ -65,12 +66,15 @@ function resetToken(string memory _name, string memory _symbol, uint256 _tokenSu
 }
 
     //vendor can create its own token by calling this method
-    function createToken(string memory _name, string memory _symbol, uint256 _totalSupply) public  {
-        require(vendors[msg.sender]._exist==false,"vendor exist!");
+    function createToken(string memory _name, string memory _symbol, uint256 _totalSupply,string memory _vid, string memory _vname) public  {
+        require(vendors[msg.sender]._exist==false,"vendor exist");
         vendors[msg.sender].coupon= new ERC20(_name, _symbol,msg.sender);
         vendors[msg.sender].coupon._mint(msg.sender, _totalSupply);
         //vendor can only be on vendors list by creating its own token
          vendors[msg.sender]._exist=true;
+         vendors[msg.sender].vendorId=_vid;
+         vendors[msg.sender].vendorName=_vname;
+        vendorsAdrs[_vid]=msg.sender;
          emit couponCreate(_name, _symbol, _totalSupply,msg.sender);
     }
    
@@ -84,16 +88,65 @@ function getVendorAddress(string memory vendorId) public view returns (address){
         return vendors[_vendorAdrs].coupon.balanceOf(owner);
     }
 
-   function getTokenInfo(address _vendorAdrs) public hasVendor(_vendorAdrs) view returns (string memory _name, string memory _symbol, uint256 _totalSupply)  {
-         ERC20 coupon=vendors[_vendorAdrs].coupon;
-        return ( coupon.name(), coupon.symbol(), coupon.totalSupply());
-    }
-
     function checkVendorExist(address _vendorAdrs) public view returns (bool){
     return vendors[_vendorAdrs]._exist;
+} 
+
+function getVendorBasicInfo(address _vendorAdrs) public hasVendor(_vendorAdrs) view returns (string memory _vendorName, string memory _vendorId, bool _exist,string memory _name, string memory _symbol, uint256 _totalSupply) {
+    string memory vendorId=vendors[_vendorAdrs].vendorId;
+    string memory vendorName=vendors[_vendorAdrs].vendorName;
+    bool  vendorExist=vendors[_vendorAdrs]._exist;
+    ERC20 coupon=vendors[_vendorAdrs].coupon;
+ return (vendorName,vendorId,vendorExist, coupon.name(), coupon.symbol(), coupon.totalSupply());
 }
 
-function checkIdUsed(uint id) public view returns (bool){
+
+   //consumer get token,one address is allowed to get one token/coupon only
+    function getCoupon(address _vendorAdrs, address _consumerAdrs) external hasVendor(_vendorAdrs)  returns (bool) {
+         require(_consumerAdrs != address(0));
+        //check if the receipient is the owner or not
+        require(_consumerAdrs!=_vendorAdrs);
+        //require(vendors[_vendorAdrs]._exist,"No such vendor");
+         ERC20 coupon=vendors[_vendorAdrs].coupon;
+        //check if consumer already has token or not
+        require(coupon.balanceOf(_consumerAdrs)==0);
+        //check if the balance of vendor >=1
+        require(coupon.balanceOf( _vendorAdrs)>=1);
+       (bool sent) =coupon.transfer(_consumerAdrs,1);
+        require(sent);
+        //create a consumer in vendor's consumers list
+        Consumer storage consumer =vendors[_vendorAdrs].consumers[_consumerAdrs];
+        consumer.notSpent=true;
+        consumer.id=_consumerAdrs;
+        emit consumerGetCoupon(consumer,_vendorAdrs);
+        return sent;
+    }
+
+    function useCoupon(address _vendorAdrs,uint productId) external hasVendor(_vendorAdrs) returns(bool){
+        //check if the product exists
+        require(vendors[_vendorAdrs].products[productId]._exist,"product not found");
+        Product memory product=vendors[_vendorAdrs].products[productId];
+        ERC20 coupon=vendors[_vendorAdrs].coupon;
+        //check if the stock of product bigger than 1
+        require(product.stock>=1,"out of stock");
+        //check if the msg.sender has 1 token and not spent yet
+        require(coupon.balanceOf(msg.sender)==1,"invalid balance");
+        //vendor should not use coupon
+        require(msg.sender!=_vendorAdrs,"no vendor");
+        //the msg.sender can only use its own coupon
+        Consumer memory consumer=vendors[_vendorAdrs].consumers[msg.sender];
+        bool spent= consumer.notSpent;
+        require(spent,"invalid num");
+        product.stock-=1;
+        //add product to consumer
+        consumer.purchasedProdcut=product;
+        consumer.notSpent=false;
+        //burn the token
+        coupon.burn(msg.sender,1);
+        emit couponUsed(consumer,_vendorAdrs);
+    return true;
+    }
+    function checkIdUsed(uint id) public view returns (bool){
   for(uint i=0; i< vendors[msg.sender].productIdList.length; i++){
       if(vendors[msg.sender].productIdList[i]==id) {
           return true;
@@ -103,7 +156,7 @@ function checkIdUsed(uint id) public view returns (bool){
 }
 
         //only vendor can set product to its products list
-    function setProduct(string memory name,uint id,uint256 price,uint256 stock)external isOwner {
+    function setProduct(string memory name,uint id,uint256 price,uint256 stock) external isOwner {
         require(vendors[msg.sender].products[id]._exist==false,"product existed");
         //the product id should be unique even if the product is deleted
         require(checkIdUsed(id)==false,"id used!");
@@ -146,53 +199,9 @@ function checkIdUsed(uint id) public view returns (bool){
         emit productDeleted(id, msg.sender);
         return true;
     }
-
-   //consumer get token,one address is allowed to get one token/coupon only
-    function getCoupon(address _vendorAdrs, address _consumerAdrs) external hasVendor(_vendorAdrs)  returns (bool) {
-         require(_consumerAdrs != address(0), "invalid address");
-        //check if the receipient is the owner or not
-        require(_consumerAdrs!=_vendorAdrs,"don't send coupon to the vendor!");
-        //require(vendors[_vendorAdrs]._exist,"No such vendor");
-         ERC20 coupon=vendors[_vendorAdrs].coupon;
-        //check if consumer already has token or not
-        require(coupon.balanceOf(_consumerAdrs)==0,"You already have the coupon!");
-        //check if the balance of vendor >=1
-        require(coupon.balanceOf( _vendorAdrs)>=1,"Not enough coupon!");
-       (bool sent) =coupon.transfer(_consumerAdrs,1);
-        require(sent, "Failed to buy the coupon");
-        //create a consumer in vendor's consumers list
-        Consumer storage consumer =vendors[_vendorAdrs].consumers[_consumerAdrs];
-        consumer.notSpent=true;
-        consumer.id=_consumerAdrs;
-        emit consumerGetCoupon(consumer,_vendorAdrs);
-        return sent;
-    }
-
-    function useCoupon(address _vendorAdrs,uint productId) external hasVendor(_vendorAdrs) returns(bool){
-        //check if the product exists
-        require(vendors[_vendorAdrs].products[productId]._exist,"product not found");
-        Product memory product=vendors[_vendorAdrs].products[productId];
-        ERC20 coupon=vendors[_vendorAdrs].coupon;
-        //check if the stock of product bigger than 1
-        require(product.stock>=1,"out of stock");
-        //check if the msg.sender has 1 token and not spent yet
-        require(coupon.balanceOf(msg.sender)==1,"invalid balance!");
-        //vendor should not use coupon
-        require(msg.sender!=_vendorAdrs,"vendor should not use coupon!");
-        //the msg.sender can only use its own coupon
-        Consumer memory consumer=vendors[_vendorAdrs].consumers[msg.sender];
-        bool spent= consumer.notSpent;
-        require(spent,"you have spent your token");
-        product.stock-=1;
-        //add product to consumer
-        consumer.purchasedProdcut=product;
-        consumer.notSpent=false;
-        //burn the token
-        coupon.burn(msg.sender,1);
-        emit couponUsed(consumer,_vendorAdrs);
-    return true;
-    }
 }
+
+
 
 //this contract is copied from openzeppelin ERC20 contract, but I altered some function to public
 //in order to make them available after it is instantialized in other contract

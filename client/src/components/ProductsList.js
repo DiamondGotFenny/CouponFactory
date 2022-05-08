@@ -6,7 +6,7 @@ import { useParams } from 'react-router-dom';
 const ProductsList = ({ account, contract }) => {
   //write a usestate to store the products
   const [products, setProducts] = useState([]);
-  const { selectedVendor } = useContext(appContext);
+
   //use account instead of id in url, then use url to query the products
   const { vendorId } = useParams();
   const [vendorAdrs, setVendorAdrs] = useState('');
@@ -17,7 +17,7 @@ const ProductsList = ({ account, contract }) => {
     if (!contract) {
       return;
     }
-    if (!account || vendorId) {
+    if (!account || !vendorId) {
       return;
     }
     try {
@@ -76,9 +76,10 @@ const ProductsList = ({ account, contract }) => {
   }, [contract, account, vendorAdrs]);
   useEffect(() => {
     getVendorAddress(vendorId);
+  }, [vendorId, account]);
+  useEffect(() => {
     accessDelete();
-  }, [account, vendorAdrs]);
-
+  }, [account]);
   return (
     <div>
       <h1>Products List</h1>

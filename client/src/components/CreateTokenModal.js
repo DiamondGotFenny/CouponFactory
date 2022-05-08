@@ -5,7 +5,7 @@ import Form from 'react-bootstrap/Form';
 import appContext from '../context/AppContext';
 
 const CreateTokenModal = ({ show, onHide, contract, account }) => {
-  const { setNewVendor } = useContext(appContext);
+  const { vendorAccountsList, setVendorAccountsList } = useContext(appContext);
 
   const [couponInput, setCouponInput] = React.useState({
     _name: '',
@@ -40,21 +40,13 @@ const CreateTokenModal = ({ show, onHide, contract, account }) => {
         .createToken(
           couponInput._name,
           couponInput._symbol,
-          couponInput._totalSupply
+          couponInput._totalSupply,
+          generateId(account[0]),
+          couponInput._vendorName
         )
         .send({ from: account[0] });
       console.log(response);
-      const newVendor = {
-        vendorName: couponInput._vendorName,
-        vendorId: generateId(account[0]),
-        vendorAccount: account[0],
-        couponInfo: {
-          couponName: couponInput._name,
-          couponSymbol: couponInput._symbol,
-          couponTotalSupply: couponInput._totalSupply,
-        },
-      };
-      setNewVendor(newVendor);
+      setVendorAccountsList(...vendorAccountsList, account[0]);
       onHide();
       return;
     } catch (error) {

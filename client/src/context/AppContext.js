@@ -5,7 +5,7 @@ const appContext = React.createContext(null);
 export const AppContextProvider = ({ children }) => {
   const [productsList, setProductsList] = useState([]);
   const [selectedVendor, setSelectedVendor] = useState(null);
-  const [newVendor, setNewVendor] = useState(null);
+  const [vendorAccountsList, setVendorAccountsList] = useState([]);
 
   return (
     <appContext.Provider
@@ -14,8 +14,8 @@ export const AppContextProvider = ({ children }) => {
         setProductsList,
         selectedVendor,
         setSelectedVendor,
-        newVendor,
-        setNewVendor,
+        vendorAccountsList,
+        setVendorAccountsList,
       }}>
       {children}
     </appContext.Provider>
