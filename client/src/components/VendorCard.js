@@ -75,7 +75,6 @@ const VendorCard = ({ account, contract, vendorAccount }) => {
       const response = await contract.methods
         .getVendorBasicInfo(vendorAccount)
         .call();
-      console.log(response, 'vendorInfo');
       setVendor(response);
     } catch (error) {
       console.log(error);

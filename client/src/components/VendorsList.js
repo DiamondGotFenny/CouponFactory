@@ -3,34 +3,39 @@ import appContext from '../context/AppContext';
 import VendorCard from './VendorCard';
 
 const VendorsList = ({ account, contract }) => {
-  const { vendorAccountsList, setVendorAccountsList } = useContext(appContext);
+  const { vendorsIdList } = useContext(appContext);
 
-  const generateId = (account) => {
-    const startString = account.substring(0, 4);
-    const id = Math.random().toString(36).substring(2, 15) + startString;
-    return id;
-  };
-  console.log(vendorAccountsList, 'vendorAccountsList');
+  const [vendorsAccount, setVendorsAccount] = useState([]);
 
-  useEffect(() => {
-    if (!account) {
+  const getVendorsAccount = async (vendorsIdList) => {
+    if (!contract) {
       return;
     }
-    if (vendorAccountsList.length === 0) {
-      setVendorAccountsList([...vendorAccountsList, account[0]]);
-    }
-  }, [vendorAccountsList, account]);
+
+    const vendorsAcc = await Promise.all(
+      vendorsIdList.map(async (vendorId) => {
+        const vendorAdrs = await contract.methods
+          .getVendorAddress(vendorId)
+          .call();
+        return vendorAdrs;
+      })
+    );
+    setVendorsAccount(vendorsAcc);
+  };
+  useEffect(() => {
+    getVendorsAccount(['7ntzehkgmpq0x48']);
+  }, [vendorsIdList, contract]);
   return (
     <div>
       <h1>Vendors List</h1>
-      {vendorAccountsList.map(
-        (vendorAccount) =>
-          vendorAccount && (
+      {vendorsAccount.map(
+        (vAccount) =>
+          vAccount && (
             <VendorCard
-              key={generateId(vendorAccount)}
+              key={vAccount}
               account={account}
               contract={contract}
-              vendorAccount={vendorAccount}
+              vendorAccount={vAccount}
             />
           )
       )}
