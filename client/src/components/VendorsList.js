@@ -23,7 +23,7 @@ const VendorsList = ({ account, contract }) => {
     setVendorsAccount(vendorsAcc);
   };
   useEffect(() => {
-    getVendorsAccount(['7ntzehkgmpq0x48']);
+    getVendorsAccount(vendorsIdList);
   }, [vendorsIdList, contract]);
   return (
     <div>

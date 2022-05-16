@@ -5,7 +5,7 @@ import Form from 'react-bootstrap/Form';
 import appContext from '../context/AppContext';
 
 const CreateTokenModal = ({ show, onHide, contract, account }) => {
-  const { vendorsIdList, setVendorsIdList } = useContext(appContext);
+  const { vendorsIdList } = useContext(appContext);
 
   const [couponInput, setCouponInput] = React.useState({
     _name: '',
@@ -45,10 +45,12 @@ const CreateTokenModal = ({ show, onHide, contract, account }) => {
           couponInput._vendorName
         )
         .send({ from: account[0] });
-      setVendorsIdList([...vendorsIdList, id]);
+      console.log(vendorsIdList, id, 'vendorsIdList, id');
+      const newVendorsIdList = [...vendorsIdList, id];
       //get to know why the id didn't get saved in local storage
       console.log(vendorsIdList, 'vendorsIdList created');
-      localStorage.setItem('vendorsIdList', JSON.stringify(vendorsIdList));
+      localStorage.setItem('vendorsIdList', JSON.stringify(newVendorsIdList));
+      window.dispatchEvent(new Event('newVendorCreated'));
       onHide();
       return;
     } catch (error) {

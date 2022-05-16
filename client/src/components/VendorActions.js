@@ -10,7 +10,7 @@ import appContext from '../context/AppContext';
 
 const VendorAction = ({ account, contract }) => {
   const navigate = useNavigate();
-  const [isVendor, setIsVendor] = React.useState(false);
+  const { isVendor } = useContext(appContext);
   const [openCreateToken, setOpenCreateToken] = React.useState(false);
   const [openCouponInfo, setOpenCouponInfo] = React.useState(false);
   const [openAddProduct, setOpenAddProduct] = React.useState(false);
@@ -20,29 +20,6 @@ const VendorAction = ({ account, contract }) => {
 
   const handleBack = () => {
     navigate('/');
-  };
-
-  //check if the account[0] is already create a token
-  const checkIfAccountHasToken = async (e) => {
-    if (!contract) {
-      return;
-    }
-    if (!account) {
-      return;
-    }
-    try {
-      const response = await contract.methods
-        .checkVendorExist(account[0])
-        .call();
-      if (response) {
-        //should get the vendorInfo from api
-        setIsVendor(true);
-        return true;
-      }
-    } catch (error) {
-      alert(error.message);
-      console.log(error);
-    }
   };
 
   const handleCreateToken = () => {
@@ -58,10 +35,6 @@ const VendorAction = ({ account, contract }) => {
   const handleResetToken = () => {
     setOpenCreateToken(true);
   };
-
-  useEffect(() => {
-    checkIfAccountHasToken();
-  }, [account, contract]);
 
   return (
     <div>

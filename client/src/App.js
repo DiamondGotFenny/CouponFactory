@@ -44,7 +44,7 @@ const App = () => {
 
   return (
     <div className='App'>
-      <AppContextProvider>
+      <AppContextProvider account={account} contract={contract}>
         <BrowserRouter>
           <VendorAction account={account} contract={contract} />
           <Routes>
